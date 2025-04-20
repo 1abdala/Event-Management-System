@@ -1,12 +1,14 @@
 #include <iostream>
 using namespace std;
 #include "Database.h"
+#include "clsLoginScreen.h"
 
-int main(){
-	string res;
-	connectToDatabase();
-     executeInstruction("insert into user values(2,'FADAL');");
-	closeDatabaseConnection();
+
+int main() {
+
+	clcLogin log;
+	log.displayScreen();
+
 
 
 	return 0;

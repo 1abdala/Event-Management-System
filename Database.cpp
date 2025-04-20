@@ -1,4 +1,4 @@
-#include "Database.h"
+﻿#include "Database.h"
 #include "mysql_connection.h"
 #include <cppconn/driver.h>
 #include <cppconn/exception.h>
@@ -15,8 +15,8 @@ void connectToDatabase() {
         sql::Driver* driver = get_driver_instance();
         // Establish connection to the database server at the specified address and port
         globalCon = driver->connect("tcp://127.0.0.1:3306", "root", "");
-        // Set the current database schema to "toystore"
-        globalCon->setSchema("event managment");
+        // Set the current database schema to " event_management"
+        globalCon->setSchema(" event_management");
     }
     catch (sql::SQLException& e) {
         // Output error details if an SQL exception occurs

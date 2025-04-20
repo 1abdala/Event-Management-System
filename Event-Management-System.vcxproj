@@ -134,8 +134,16 @@
     <ClCompile Include="Main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="clsattendee.h" />
+    <ClInclude Include="clsDate.h" />
+    <ClInclude Include="clsInputValidate.h" />
+    <ClInclude Include="clsLoginScreen.h" />
+    <ClInclude Include="clsOrganizerScreen.h" />
+    <ClInclude Include="clsScreen.h" />
+    <ClInclude Include="clsString.h" />
+    <ClInclude Include="Globals.h" />
     <ClInclude Include="Database.h" />
-    <ClInclude Include="User.h" />
+    <ClInclude Include="clsUser.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
