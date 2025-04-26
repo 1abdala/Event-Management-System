@@ -1,0 +1,77 @@
+#pragma once
+#include <iostream>
+#include <string>
+#include "Database.h"
+#include "Globals.h"
+#include "clsInputValidate.h"
+
+using namespace std;
+
+class clsCreateEventScreen {
+public:
+    static void Show() {
+        system("cls");
+        cout << "==============================\n";
+        cout << "      Create New Event        \n";
+        cout << "==============================\n\n";
+
+        cin.ignore();
+
+        string name, description, date, time, venue;
+
+        cout << "Enter Event Name       : ";
+        getline(cin, name);
+
+        cout << "Enter Description      : ";
+        getline(cin, description);
+        do {
+            cout << "Enter Date (YYYY-MM-DD): ";
+            getline(cin, date);
+            if (!clsInputValidate::IsValidDateFormat(date)) {
+                cout << "Invalid format! Use YYYY-MM-DD.\n";
+                date.clear();
+            }
+        } while (date.empty());
+
+        do {
+            cout << "Enter Time (HH:MM:SS)  : ";
+            getline(cin, time);
+            if (!clsInputValidate::IsValidTimeFormat(time)) {
+                cout << "Invalid format! Use HH:MM:SS.\n";
+                time.clear();
+            }
+        } while (time.empty());
+        
+        cout << "Enter Venue            : ";
+        getline(cin, venue);
+
+        // Build the query in your preferred format
+        string query = "INSERT INTO events (organizer_id, name, description, date, time, venue) VALUES ('" +
+            to_string(CurrentUser.Id) + "', '" +
+            escapeString(name) + "', '" +
+            escapeString(description) + "', '" +
+            escapeString(date) + "', '" +
+            escapeString(time) + "', '" +
+            escapeString(venue) + "')";
+
+        // Debug: Print query
+        // cout << "\nQuery:\n" << query << endl;
+        connectToDatabase();
+        executeInstruction(query);
+        closeDatabaseConnection();
+        cout << "\nEvent created successfully.\n";
+        
+    }
+
+private:
+    // Escape single quotes for SQL strings
+    static string escapeString(const string& str) {
+        string escaped = str;
+        size_t pos = 0;
+        while ((pos = escaped.find('\'', pos)) != string::npos) {
+            escaped.insert(pos, 1, '\'');
+            pos += 2;
+        }
+        return escaped;
+    }
+};

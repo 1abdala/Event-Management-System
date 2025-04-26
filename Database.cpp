@@ -90,3 +90,37 @@ string executeQuery(const string& query) {
     }
     return result;// Return the result of the query
 }
+
+
+string executeQuerySilent(const string& query) {
+    string result; // Variable to store the result of the query
+    try {
+        sql::Statement* stmt = globalCon->createStatement();
+        sql::ResultSet* res = stmt->executeQuery(query);
+
+        sql::ResultSetMetaData* res_meta = res->getMetaData();
+        int columns = res_meta->getColumnCount();
+
+        // Add column names
+        for (int i = 1; i <= columns; i++) {
+            result += res_meta->getColumnName(i) + "\t";
+        }
+        result += "\n";
+
+        // Add each row
+        while (res->next()) {
+            for (int i = 1; i <= columns; i++) {
+                result += res->getString(i) + "\t";
+            }
+            result += "\n";
+        }
+
+        delete res;
+        delete stmt;
+    }
+    catch (sql::SQLException& e) {
+        cout << "SQL Error: " << e.what() << " (MySQL error code: " << e.getErrorCode()
+            << ", SQLState: " << e.getSQLState() << " )" << endl;
+    }
+    return result;
+}

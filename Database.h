@@ -13,4 +13,5 @@ void connectToDatabase();
 void closeDatabaseConnection();
 void executeInstruction(const string& instruction);
 string executeQuery(const string& query);
+string executeQuerySilent(const string& query);
 #endif

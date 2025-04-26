@@ -135,12 +135,18 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="clsattendee.h" />
+    <ClInclude Include="clsAvailableEventsScreen.h" />
+    <ClInclude Include="clsCreateEventScreen.h" />
     <ClInclude Include="clsDate.h" />
+    <ClInclude Include="clsDeleteEventScreen.h" />
+    <ClInclude Include="clsEvent.h" />
     <ClInclude Include="clsInputValidate.h" />
     <ClInclude Include="clsLoginScreen.h" />
-    <ClInclude Include="clsOrganizerScreen.h" />
-    <ClInclude Include="clsScreen.h" />
+    <ClInclude Include="clsOrganizerMainMenuScreen.h" />
+    <ClInclude Include="clsSpeakerScreen.h" />
     <ClInclude Include="clsString.h" />
+    <ClInclude Include="clsUpdateEventScreen.h" />
+    <ClInclude Include="clsViewCreatedEventsScreen.h" />
     <ClInclude Include="Globals.h" />
     <ClInclude Include="Database.h" />
     <ClInclude Include="clsUser.h" />

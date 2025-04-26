@@ -7,6 +7,30 @@ using namespace std;
 class clsInputValidate
 {
 public:
+	static bool IsValidDateFormat(const string& date) {
+		// YYYY-MM-DD
+		if (date.length() != 10) return false;
+		if (date[4] != '-' || date[7] != '-') return false;
+		string yyyy = date.substr(0, 4);
+		string mm = date.substr(5, 2);
+		string dd = date.substr(8, 2);
+		return all_of(yyyy.begin(), yyyy.end(), ::isdigit) &&
+			all_of(mm.begin(), mm.end(), ::isdigit) &&
+			all_of(dd.begin(), dd.end(), ::isdigit);
+	}
+
+	static bool IsValidTimeFormat(const string& time) {
+		// HH:MM:SS
+		if (time.length() != 8) return false;
+		if (time[2] != ':' || time[5] != ':') return false;
+		string hh = time.substr(0, 2);
+		string mm = time.substr(3, 2);
+		string ss = time.substr(6, 2);
+		return all_of(hh.begin(), hh.end(), ::isdigit) &&
+			all_of(mm.begin(), mm.end(), ::isdigit) &&
+			all_of(ss.begin(), ss.end(), ::isdigit);
+	}
+
 	static bool IsNumberBetween(short number, short from, short to) {
 
 		return number >= from && number <= to;

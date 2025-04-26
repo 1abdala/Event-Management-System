@@ -5,7 +5,7 @@
 #include <string>
 #include "Database.h" // Your custom database implementation
 #include "Globals.h"
-#include "clsOrganizerScreen.h"
+#include "clsOrganizerMainMenuScreen.h"
 #include "clsattendee.h"
 #include "clsInputValidate.h"
 
@@ -46,7 +46,7 @@ public:
         cout << setw(45) << "|  3. Exit                   |" << endl;
         cout << setw(45) << "------------------------------" << endl;
         cout << /*setw(30) << */"Enter your choice: ";
-        cin >> choice;
+        choice= clsInputValidate::ReadIntNumber();
         while (!clsInputValidate::IsNumberBetween(choice,1, 3)) {
             cout << "Invalid choice, Inter number 1 or 2 or 3: ";
             cin >> choice;
@@ -76,9 +76,9 @@ private:
 
             //cout << "Login Successful! Welcome back, " << CurrentUser.FullName() << "!" << endl;
             if (CurrentUser.Role == "organizer")
-                clsOrganizerScreen::ShowManageOrganizerMenue();
+                clsOrganizerMainMenuScreen::ShowOrganizerMenu();
             else if (CurrentUser.Role == "attendee")
-                clsattendee::ShowManageattendeeMenue();
+                clsAttendeeMainMenuScreen::ShowAttendeeMenu();
               
         }
         else {
@@ -118,7 +118,7 @@ private:
         cout << "[DEBUG] SQL Query: " << query << endl;
 
         connectToDatabase();
-        string result = executeQuery(query); // Should return header + data rows, tab-separated
+        string result = executeQuerySilent(query); // Should return header + data rows, tab-separated
         closeDatabaseConnection();
 
         if (!result.empty()) {

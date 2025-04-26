@@ -16,8 +16,14 @@
     <Filter Include="Header Files\lib">
       <UniqueIdentifier>{15e628de-83f6-49bc-bcff-d5f28c10fb2f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Screens">
+    <Filter Include="Header Files\OrgnanizerScreens">
       <UniqueIdentifier>{d761af65-1b2f-40ea-a25a-9341f630debd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DataBase">
+      <UniqueIdentifier>{ba23e1e1-6b40-4ee2-beed-23a1bc1a9775}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="AttendeeScreens">
+      <UniqueIdentifier>{48707880-2ea4-4711-b421-329d575a6772}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -25,13 +31,10 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Database.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>DataBase</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Database.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="clsDate.h">
       <Filter>Header Files\lib</Filter>
     </ClInclude>
@@ -39,25 +42,46 @@
       <Filter>Header Files\lib</Filter>
     </ClInclude>
     <ClInclude Include="clsLoginScreen.h">
-      <Filter>Header Files\Screens</Filter>
+      <Filter>Header Files\OrgnanizerScreens</Filter>
     </ClInclude>
-    <ClInclude Include="clsOrganizerScreen.h">
-      <Filter>Header Files\Screens</Filter>
+    <ClInclude Include="clsOrganizerMainMenuScreen.h">
+      <Filter>Header Files\OrgnanizerScreens</Filter>
     </ClInclude>
     <ClInclude Include="clsUser.h">
-      <Filter>Header Files\Screens</Filter>
+      <Filter>Header Files\OrgnanizerScreens</Filter>
     </ClInclude>
     <ClInclude Include="Globals.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="clsInputValidate.h">
+    <ClInclude Include="clsEvent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="clsScreen.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="clsCreateEventScreen.h">
+      <Filter>Header Files\OrgnanizerScreens</Filter>
+    </ClInclude>
+    <ClInclude Include="clsDeleteEventScreen.h">
+      <Filter>Header Files\OrgnanizerScreens</Filter>
+    </ClInclude>
+    <ClInclude Include="clsInputValidate.h">
+      <Filter>Header Files\lib</Filter>
+    </ClInclude>
+    <ClInclude Include="clsSpeakerScreen.h">
+      <Filter>Header Files\OrgnanizerScreens</Filter>
+    </ClInclude>
+    <ClInclude Include="clsUpdateEventScreen.h">
+      <Filter>Header Files\OrgnanizerScreens</Filter>
+    </ClInclude>
+    <ClInclude Include="clsViewCreatedEventsScreen.h">
+      <Filter>Header Files\OrgnanizerScreens</Filter>
+    </ClInclude>
+    <ClInclude Include="Database.h">
+      <Filter>DataBase</Filter>
+    </ClInclude>
+    <ClInclude Include="clsAvailableEventsScreen.h">
+      <Filter>AttendeeScreens</Filter>
     </ClInclude>
     <ClInclude Include="clsattendee.h">
-      <Filter>Header Files\Screens</Filter>
+      <Filter>AttendeeScreens</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
