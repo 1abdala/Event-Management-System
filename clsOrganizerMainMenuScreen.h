@@ -71,6 +71,7 @@ private:
 
         case eAddSpeaker:
             clsSpeakerScreen::ShowSpeakerMenu();
+            _GoBackToMenu();
             break;
 
 

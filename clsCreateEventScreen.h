@@ -18,12 +18,14 @@ public:
         cin.ignore();
 
         string name, description, date, time, venue;
+        int availableTickets;
 
         cout << "Enter Event Name       : ";
         getline(cin, name);
 
         cout << "Enter Description      : ";
         getline(cin, description);
+
         do {
             cout << "Enter Date (YYYY-MM-DD): ";
             getline(cin, date);
@@ -41,26 +43,32 @@ public:
                 time.clear();
             }
         } while (time.empty());
-        
+
         cout << "Enter Venue            : ";
         getline(cin, venue);
 
-        // Build the query in your preferred format
-        string query = "INSERT INTO events (organizer_id, name, description, date, time, venue) VALUES ('" +
+       
+            cout << "Enter Available Tickets: ";
+            availableTickets=clsInputValidate::ReadIntNumber();
+           
+        
+
+        string query = "INSERT INTO events (organizer_id, name, description, date, time, venue, available_tickets) VALUES ('" +
             to_string(CurrentUser.Id) + "', '" +
             escapeString(name) + "', '" +
             escapeString(description) + "', '" +
             escapeString(date) + "', '" +
             escapeString(time) + "', '" +
-            escapeString(venue) + "')";
+            escapeString(venue) + "', '" +
+            to_string(availableTickets) + "')";
 
-        // Debug: Print query
-        // cout << "\nQuery:\n" << query << endl;
         connectToDatabase();
         executeInstruction(query);
         closeDatabaseConnection();
+
         cout << "\nEvent created successfully.\n";
-        
+        cout << "Press any key to return...";
+        system("pause>0");
     }
 
 private:

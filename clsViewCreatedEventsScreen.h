@@ -18,6 +18,7 @@ private:
         cout << "| " << setw(10) << left << row[3];  // Date
         cout << "| " << setw(8) << left << row[4];  // Time
         cout << "| " << setw(15) << left << row[5].substr(0, 14);  // Venue
+        cout << "| " << setw(8) << left << row[6];  // Available Tickets
     }
 
     static vector<string> _SplitLine(const string& line, char delimiter = '\t') {
@@ -51,7 +52,7 @@ public:
         cout << "         My Created Events              \n";
         cout << "========================================\n\n";
 
-        string query = "SELECT id, name, description, date, time, venue FROM Events WHERE organizer_id = " + to_string(CurrentUser.Id);
+        string query = "SELECT id, name, description, date, time, venue, available_tickets FROM Events WHERE organizer_id = " + to_string(CurrentUser.Id);
         connectToDatabase();
         string result = executeQuerySilent(query);
         closeDatabaseConnection();
@@ -63,14 +64,15 @@ public:
         }
 
         // Table Header
-        cout << setw(8) << left << "" << "\n\t________________________________________________________________________________________\n";
+        cout << setw(8) << left << "" << "\n\t_____________________________________________________________________________________________________________\n";
         cout << setw(8) << left << "" << "| " << setw(4) << left << "ID";
         cout << "| " << setw(18) << left << "Name";
         cout << "| " << setw(30) << left << "Description";
         cout << "| " << setw(10) << left << "Date";
         cout << "| " << setw(8) << left << "Time";
         cout << "| " << setw(15) << left << "Venue";
-        cout << "\n" << setw(5) << left << "" << "\t________________________________________________________________________________________\n";
+        cout << "| " << setw(8) << left << "Tickets";
+        cout << "\n" << setw(5) << left << "" << "\t_____________________________________________________________________________________________________________\n";
 
         // Table Body
         for (size_t i = 1; i < table.size(); ++i) {
@@ -79,6 +81,6 @@ public:
         }
 
         // Table Footer
-        cout << setw(5) << left << "" << "\t________________________________________________________________________________________\n";
+        cout << setw(5) << left << "" << "\t_____________________________________________________________________________________________________________\n";
     }
 };

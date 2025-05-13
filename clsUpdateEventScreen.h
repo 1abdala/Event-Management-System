@@ -37,6 +37,7 @@ public:
         }
 
         string name, description, date, time, venue;
+        int availableTickets;
 
         // Input with validation
         do {
@@ -75,12 +76,18 @@ public:
             if (venue.empty()) cout << "Venue cannot be empty.\n";
         } while (venue.empty());
 
+
+        cout << "New Available Tickets:            ";
+        availableTickets = clsInputValidate::ReadIntNumber();
+
+
         string query = "UPDATE Events SET "
             "name = '" + escapeString(name) + "', "
             "description = '" + escapeString(description) + "', "
             "date = '" + escapeString(date) + "', "
             "time = '" + escapeString(time) + "', "
-            "venue = '" + escapeString(venue) + "' "
+            "venue = '" + escapeString(venue) + "', "
+            "available_tickets = '" + to_string(availableTickets) + "' "
             "WHERE id = '" + escapeString(eventID) + "' AND organizer_id = '" + to_string(CurrentUser.Id) + "'";
 
         connectToDatabase();

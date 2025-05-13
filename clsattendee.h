@@ -4,6 +4,9 @@
 #include "clsInputValidate.h"
 #include "Globals.h"
 #include "clsAvailableEventsScreen.h"
+#include "clsBookTicketScreen.h"
+
+
 class clsAttendeeMainMenuScreen {
 private:
 
@@ -43,8 +46,7 @@ private:
             break;
             
         case eBookTicket:
-            _DrawScreenHeader("Book a Ticket");
-            cout << "\n[Book Ticket functionality will be here]\n";
+            clsBookTicketScreen::Show();
             _GoBackToMenu();
             break;
 

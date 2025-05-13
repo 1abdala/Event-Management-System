@@ -22,7 +22,7 @@
     <Filter Include="DataBase">
       <UniqueIdentifier>{ba23e1e1-6b40-4ee2-beed-23a1bc1a9775}</UniqueIdentifier>
     </Filter>
-    <Filter Include="AttendeeScreens">
+    <Filter Include="Header Files\AttendeeScreens">
       <UniqueIdentifier>{48707880-2ea4-4711-b421-329d575a6772}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -78,10 +78,25 @@
       <Filter>DataBase</Filter>
     </ClInclude>
     <ClInclude Include="clsAvailableEventsScreen.h">
-      <Filter>AttendeeScreens</Filter>
+      <Filter>Header Files\AttendeeScreens</Filter>
     </ClInclude>
     <ClInclude Include="clsattendee.h">
-      <Filter>AttendeeScreens</Filter>
+      <Filter>Header Files\AttendeeScreens</Filter>
+    </ClInclude>
+    <ClInclude Include="clsAddSpeaker.h">
+      <Filter>Header Files\OrgnanizerScreens</Filter>
+    </ClInclude>
+    <ClInclude Include="clsViewAddedSpeakers.h">
+      <Filter>Header Files\OrgnanizerScreens</Filter>
+    </ClInclude>
+    <ClInclude Include="clsDeleteSpeakerScreen.h">
+      <Filter>Header Files\OrgnanizerScreens</Filter>
+    </ClInclude>
+    <ClInclude Include="clsUpdatSpeakerScreen.h">
+      <Filter>Header Files\OrgnanizerScreens</Filter>
+    </ClInclude>
+    <ClInclude Include="clsBookTicketScreen.h">
+      <Filter>Header Files\AttendeeScreens</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -4,12 +4,18 @@
 #include <iomanip>
 #include "clsInputValidate.h"
 #include "Globals.h"
+#include "clsAddSpeaker.h"
+#include "clsViewAddedSpeakers.h"
+#include "clsViewAddedSpeakers.h"
+#include "clsDeleteSpeakerScreen.h"
+#include "clsUpdatSpeakerScreen.h"
+
 
 class clsSpeakerScreen {
 private:
 
     enum enSpeakerMenuOption {
-        eAddSpeaker = 1,eViewSpeakers, eUpdateSoeakerInto
+        eAddSpeaker = 1,eViewSpeakers, eUpdatSpeakerInto
         ,eDeleteSpeaker,eLogout
     };
 
@@ -39,24 +45,26 @@ private:
     static void _PerformMenuOption(enSpeakerMenuOption Option) {
         switch (Option) {
         case eAddSpeaker:
-            cout << "\n[Add Speaker functionality will be here]\n";
+           
+            clsAddSpeakerScreen::Show();
             _GoBackToMenu();
+
             break;
 
         case eViewSpeakers:
-            cout << "\n[Add Speaker functionality will be here]\n";
-            _GoBackToMenu();
+            clsViewAddedSpeakersScreen::ShowAddedSpeakers();
+             _GoBackToMenu();
             break;
 
-        case eUpdateSoeakerInto:
-            cout << "\n[Add Speaker functionality will be here]\n";
+        case eUpdatSpeakerInto:
+            clsUpdateSpeakerScreen::Show();
             _GoBackToMenu();
             break;
 
 
         case eDeleteSpeaker:
-            cout << "\n[Add Speaker functionality will be here]\n";
-            _GoBackToMenu();
+            clsDeleteSpeakerScreen::Show();
+             _GoBackToMenu();
             break;
 
 
