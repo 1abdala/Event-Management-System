@@ -1,4 +1,3 @@
-
 #pragma once
 #include <iostream>
 #include <iomanip>
@@ -48,12 +47,11 @@ private:
            
             clsAddSpeakerScreen::Show();
             _GoBackToMenu();
-
             break;
 
         case eViewSpeakers:
             clsViewAddedSpeakersScreen::ShowAddedSpeakers();
-             _GoBackToMenu();
+            _GoBackToMenu();
             break;
 
         case eUpdatSpeakerInto:
@@ -61,12 +59,10 @@ private:
             _GoBackToMenu();
             break;
 
-
         case eDeleteSpeaker:
-            clsDeleteSpeakerScreen::Show();
-             _GoBackToMenu();
+            clsDeleteSpeakerScreen::ShowDeleteSpeakerScreen();
+            _GoBackToMenu();
             break;
-
 
         case eLogout:
             

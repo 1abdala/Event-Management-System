@@ -13,19 +13,20 @@
 
 using namespace std;
 
-class clcLogin {
+class clsLoginScreen {
 public:
-    clcLogin() {
+    clsLoginScreen() {
         // Constructor
     }
 
-    ~clcLogin() {
+    ~clsLoginScreen() {
         // Destructor
     }
 
-    void displayScreen() {
+    bool displayScreen() {
         int choice;
 
+        system("cls");
         cout << "\n\n";
         cout << setw(45) << "==========================================" << endl;
         cout << setw(45) << "|                                        |" << endl;
@@ -45,45 +46,58 @@ public:
         cout << setw(45) << "|  2. Sign Up                |" << endl;
         cout << setw(45) << "|  3. Exit                   |" << endl;
         cout << setw(45) << "------------------------------" << endl;
-        cout << /*setw(30) << */"Enter your choice: ";
-        choice= clsInputValidate::ReadIntNumber();
-        while (!clsInputValidate::IsNumberBetween(choice,1, 3)) {
-            cout << "Invalid choice, Inter number 1 or 2 or 3: ";
-            cin >> choice;
+        cout << "Enter your choice: ";
+        choice = clsInputValidate::ReadIntNumber();
+
+        while (!clsInputValidate::IsNumberBetween(choice, 1, 3)) {
+            cout << "Invalid choice, Enter number 1 or 2 or 3: ";
+            choice = clsInputValidate::ReadIntNumber();
         }
+
         switch (choice) {
         case 1:
             displayLoginScreen();
-            break;
+            return true;
         case 2:
             displaySignUpScreen();
-            break;
-        default:
-            return;
+            return true;
+        case 3:
+            return false;
         }
+
+        return true;
     }
+
 
 private:
     void displayLoginScreen() {
+        
         string username, password;
-        cout << "\n--- Login ---\n";
-        cout << "Enter Username: ";
-        cin >> username;
-        cout << "Enter Password: ";
-        cin >> password;
+        int attempts = 0;
+        const int maxAttempts = 3;
 
-        if (authenticateUser(username, password)) {
+        while (attempts < maxAttempts) {
+            cout << "\n--- Login --- (Attempt " << (attempts + 1) << " of " << maxAttempts << ")\n";
+            cout << "Enter Username: ";
+            cin >> username;
+            cout << "Enter Password: ";
+            password = clsInputValidate::ReadPassword();
 
-            //cout << "Login Successful! Welcome back, " << CurrentUser.FullName() << "!" << endl;
-            if (CurrentUser.Role == "organizer")
-                clsOrganizerMainMenuScreen::ShowOrganizerMenu();
-            else if (CurrentUser.Role == "attendee")
-                clsAttendeeMainMenuScreen::ShowAttendeeMenu();
-              
+            if (authenticateUser(username, password)) {
+                if (CurrentUser.Role == "organizer")
+                    clsOrganizerMainMenuScreen::ShowOrganizerMenu();
+
+                else if (CurrentUser.Role == "attendee")
+                    clsAttendeeMainMenuScreen::ShowAttendeeMenu();
+                return;
+            }
+            else {
+                cout << "Login Failed. Please check your credentials.\n";
+                attempts++;
+            }
         }
-        else {
-            cout << "Login Failed. Please check your credentials and try again." << endl;
-        }
+
+        cout << "\nToo many failed attempts. Returning to main menu.\n";
     }
 
     void displaySignUpScreen() {
@@ -98,15 +112,28 @@ private:
         cout << "Enter Email: ";
         cin >> email;
         cout << "Enter Password: ";
-        cin >> password;
-        cout << "Enter Role (organizer/attendee): ";
-        cin >> role;
+        password = clsInputValidate::ReadPassword();
+        
+        int roleChoice;
+        cout << "Enter Role (1 for Organizer, 2 for Attendee): ";
+        roleChoice = clsInputValidate::ReadIntNumberBetween(1, 2, "Invalid choice. Please enter 1 for Organizer or 2 for Attendee: ");
+
+        if (roleChoice == 1) {
+            role = "organizer";
+        } else {
+            role = "attendee";
+        }
 
         if (registerUser(first_name, last_name, username, email, password, role)) {
-            cout << "Sign Up Successful! You can now log in." << endl;
+            cout << "\n\nSign Up Successful! You can now log in." << endl;
+            cout << "\nPress any key to return to the main menu...";
+            system("pause>0");
+
         }
         else {
             cout << "Sign Up Failed. Please try again." << endl;
+            cout << "\nPress any key to return to the main menu...";
+            system("pause>0");
         }
     }
 
@@ -176,7 +203,6 @@ private:
             escapeString(username) + "', '" + escapeString(email) + "', '" +
             escapeString(password) + "', '" + escapeString(role) + "')";
 
-        cout << "[DEBUG] SQL Insert: " << query << endl; // Debugging output
         connectToDatabase();
         executeInstruction(query); // Using the custom function from Database.h
         closeDatabaseConnection();

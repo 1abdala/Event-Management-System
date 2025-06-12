@@ -1,89 +1,187 @@
 #pragma once
+// Standard library includes
 #include <iostream>
 #include <iomanip>
-#include <vector>
 #include <sstream>
+#include <string>
+#include <vector>
+
+// Project includes
+#include "clsScreen.h"
 #include "Database.h"
 #include "Globals.h"
+#include "clsErrorHandler.h"
+#include "clsInputValidate.h"
 
-using namespace std;
+// Include this last to prevent circular dependencies
+#include "clsBookTicketScreen.h"
 
-class clsAvailableEventsScreen {
+class clsAvailableEventsScreen : protected clsScreen {
 private:
-
-    static void _PrintEventRow(vector<string> row) {
-        cout << setw(8) << left << "" << "| " << setw(4) << left << row[0];  // ID
-        cout << "| " << setw(20) << left << row[1];                           // Name
-        cout << "| " << setw(30) << left << row[2].substr(0, 29);             // Description
-        cout << "| " << setw(10) << left << row[3];                           // Date
-        cout << "| " << setw(8) << left << row[4];                           // Time
-        cout << "| " << setw(15) << left << row[5].substr(0, 14);             // Venue
+    static void _DrawScreenHeader() {
+        system("cls");
+        cout << "\n===========================================\n";
+        cout << "\t   Available Events Screen";
+        cout << "\n===========================================\n";
     }
 
-    static vector<string> _SplitLine(const string& line, char delimiter = '\t') {
-        vector<string> tokens;
-        string token;
-        stringstream ss(line);
-        while (getline(ss, token, delimiter)) {
-            tokens.push_back(token);
-        }
-        return tokens;
+    static void _PrintEventsTableHeader() {
+        cout << "\n" << setw(115) << setfill('=') << "" << setfill(' ') << "\n";
+        cout << "| " << setw(5) << left << "ID"
+             << "| " << setw(25) << left << "Event Name"
+             << "| " << setw(12) << left << "Date"
+             << "| " << setw(10) << left << "Price"
+             << "| " << setw(18) << left << "Available Tickets"
+             << "| " << setw(25) << left << "Speaker(s)"
+             << "|" << endl;
+        cout << setw(115) << setfill('=') << "" << setfill(' ') << "\n";
     }
 
-    static vector<vector<string>> _ParseResult(const string& data) {
-        vector<vector<string>> table;
-        stringstream ss(data);
-        string line;
-        while (getline(ss, line)) {
-            if (!line.empty()) {
-                table.push_back(_SplitLine(line));
-            }
-        }
-        return table;
+    static void _PrintEventRow(const string& id, const string& name, 
+                             const string& date, const string& price,
+                             int availableTickets, const string& speakers) {
+        cout << "| " << setw(5) << left << id
+             << "| " << setw(25) << left << name
+             << "| " << setw(12) << left << date
+             << "| $" << setw(8) << left << price
+             << "| " << setw(18) << left << availableTickets
+             << "| " << setw(25) << left << speakers
+             << " |" << endl;
+        cout << setw(115) << setfill('-') << "" << setfill(' ') << "\n";
     }
 
 public:
-
     static void Show() {
-        system("cls");
-        cout << "========================================\n";
-        cout << "         Available Events               \n";
-        cout << "========================================\n\n";
+        try {
+            string subChoice = "0";
+            do {
+                _DrawScreenHeader();
+                
+                if (!connectToDatabase()) {
+                    clsErrorHandler::HandleError(clsErrorHandler::enErrorType::Database, 
+                        "Failed to connect to database");
+                    return;
+                }
 
-        string query =
-            "SELECT id, name, description, date, time, venue "
-            "FROM Events "
-            "WHERE date > CURDATE() OR (date = CURDATE() AND time > CURTIME())";
+                string query = "SELECT e.id, e.name, e.date, e.ticket_price, "
+                             "e.available_tickets - COALESCE(COUNT(t.id), 0) as available_tickets, "
+                             "COALESCE(GROUP_CONCAT(s.full_name SEPARATOR ', '), 'None') as speakers "
+                             "FROM events e "
+                             "LEFT JOIN tickets t ON e.id = t.event_id "
+                             "LEFT JOIN speakers s ON e.id = s.event_id "
+                             "WHERE e.date >= CURDATE() "
+                             "AND e.id NOT IN ( "
+                             "    SELECT event_id FROM tickets "
+                             "    WHERE attendee_id = (SELECT id FROM users WHERE username = '" + CurrentUser.Username + "') "
+                             ") "
+                             "GROUP BY e.id, e.name, e.date, e.ticket_price, e.available_tickets "
+                             "HAVING available_tickets > 0 "
+                             "ORDER BY e.date ASC";
 
-        connectToDatabase();
-        string result = executeQuerySilent(query);
-        closeDatabaseConnection();
+                string result = executeQuerySilent(query);
+                if (result.empty()) {
+                    clsErrorHandler::HandleError(clsErrorHandler::enErrorType::Database, 
+                        "Failed to retrieve events from database");
+                    closeDatabaseConnection();
+                    return;
+                }
 
-        vector<vector<string>> table = _ParseResult(result);
+                // Skip header line
+                size_t pos = result.find('\n');
+                if (pos != string::npos) {
+                    result = result.substr(pos + 1);
+                }
 
-        if (table.size() < 1) {
-            cout << "\nNo available events at the moment.\n";
+                if (!result.empty()) {
+                    _PrintEventsTableHeader();
+
+                    stringstream ss(result);
+                    string line;
+                    vector<string> eventIds;
+
+                    while (getline(ss, line)) {
+                        if (line.empty()) continue;
+
+                        vector<string> fields;
+                        stringstream lineStream(line);
+                        string field;
+                        
+                        while (getline(lineStream, field, '\t')) {
+                            fields.push_back(field);
+                        }
+
+                        if (fields.size() >= 6) {
+                            try {
+                                _PrintEventRow(fields[0], fields[1], fields[2], fields[3], stoi(fields[4]), fields[5]);
+                                eventIds.push_back(fields[0]);
+                            }
+                            catch (const exception& e) {
+                                clsErrorHandler::HandleError(clsErrorHandler::enErrorType::General, 
+                                    "Error processing event data: " + string(e.what()));
+                                continue;
+                            }
+                        }
+                    }
+
+                    if (eventIds.empty()) {
+                        clsErrorHandler::HandleError(clsErrorHandler::enErrorType::General, 
+                            "No valid events found to display");
+                        closeDatabaseConnection();
+                        return;
+                    }
+
+                    cout << "\nOptions:\n";
+                    cout << "[1] Book a Ticket\n";
+                    cout << "[0] Return to Main Menu\n";
+
+                    subChoice = to_string(clsInputValidate::ReadIntNumberBetween(0, 1, "\nChoose what do you want to do? [0-1] "));
+
+                    if (subChoice == "1") {
+                        string eventId;
+                        do {
+                            cout << "\nEnter Event ID (or 0 to cancel): ";
+                            eventId = clsInputValidate::ReadString();
+                            
+                            if (eventId == "0") break;
+
+                            bool validEvent = false;
+                            for (const string& id : eventIds) {
+                                if (id == eventId) {
+                                    validEvent = true;
+                                    break;
+                                }
+                            }
+
+                            if (!validEvent) {
+                                clsErrorHandler::HandleError(clsErrorHandler::enErrorType::Validation, 
+                                    "Invalid Event ID. Please try again.");
+                                eventId = "";
+                            }
+                        } while (eventId.empty());
+
+                        if (eventId != "0") {
+                            clsBookTicketScreen::ShowBookTicket(eventId);
+                        }
+                    }
+                }
+                else {
+                    clsErrorHandler::HandleError(clsErrorHandler::enErrorType::General, 
+                        "No available events found.");
+                    cout << "\nPress any key to return to main menu...";
+                    system("pause>0");
+                    subChoice = "0";
+                }
+
+                closeDatabaseConnection();
+
+            } while (subChoice != "0");
+        }
+        catch (const exception& e) {
+            clsErrorHandler::HandleError(clsErrorHandler::enErrorType::General, 
+                "An unexpected error occurred: " + string(e.what()));
+            closeDatabaseConnection();
             cout << "\nPress any key to return...";
             system("pause>0");
-            return;
         }
-
-        // Header
-        cout << setw(8) << left << "" << "\n\t_____________________________________________________________________________________________________\n";
-        cout << setw(8) << left << "" << "| " << setw(4) << left << "ID";
-        cout << "| " << setw(20) << left << "Name";
-        cout << "| " << setw(30) << left << "Description";
-        cout << "| " << setw(10) << left << "Date";
-        cout << "| " << setw(8) << left << "Time";
-        cout << "| " << setw(15) << left << "Venue";
-        cout << "\n" << setw(8) << left << "" << "_____________________________________________________________________________________________________\n";
-
-        for (size_t i = 1; i < table.size(); ++i) {
-            _PrintEventRow(table[i]);
-            cout << endl;
-        }
-
-        cout << setw(8) << left << "" << "\n\t_____________________________________________________________________________________________________\n";
-        
     }
 };

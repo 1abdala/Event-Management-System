@@ -6,10 +6,17 @@
 #include <cppconn/statement.h>
 #include <cppconn/prepared_statement.h>
 #include <fstream>
+
+// Initialize static members
+const char* DatabaseConfig::HOST = "tcp://127.0.0.1:3306";
+const char* DatabaseConfig::USER = "root";
+const char* DatabaseConfig::PASS = "";
+const char* DatabaseConfig::SCHEMA = "event_management";
+
+// Global connection object
 sql::Connection* globalCon = nullptr;
 
-
-void connectToDatabase() {
+bool connectToDatabase() {
     try {
         // Get a pointer to the database driver instance
         sql::Driver* driver = get_driver_instance();
@@ -17,11 +24,13 @@ void connectToDatabase() {
         globalCon = driver->connect("tcp://127.0.0.1:3306", "root", "");
         // Set the current database schema to " event_management"
         globalCon->setSchema(" event_management");
+        return true; // Connection successful
     }
     catch (sql::SQLException& e) {
         // Output error details if an SQL exception occurs
         cout << "SQL Error: " << e.what() << " (MySQL error code: " << e.getErrorCode()
             << ", SQLState: " << e.getSQLState() << " )" << endl;
+        return false; // Connection failed
     }
 }
 
@@ -46,8 +55,8 @@ void executeInstruction(const string& instruction) {
     }
     catch (sql::SQLException& e) {
         // Output error details if an SQL exception occurs during the operation
-        cout << "SQL Error: " << e.what() << " (MySQL error code: " << e.getErrorCode()
-            << ", SQLState: " << e.getSQLState() << " )" << endl;
+        /*cout << "SQL Error: " << e.what() << " (MySQL error code: " << e.getErrorCode()
+            << ", SQLState: " << e.getSQLState() << " )" << endl;*/
     }
 }
 

@@ -1,3 +1,4 @@
+#pragma once
 #include <iostream>
 #include <string>
 using namespace std;
@@ -71,9 +72,7 @@ public:
     __declspec(property(get = GetUpdatedAt, put = SetUpdatedAt)) string UpdatedAt;
 
     string FullName() {
-
-        return _FirstName+" " + _LastName;
-
+        return _FirstName + " " + _LastName;
     }
 
     // Display Function

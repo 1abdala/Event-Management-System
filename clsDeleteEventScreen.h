@@ -6,10 +6,13 @@
 #include <vector>
 #include "Database.h"
 #include "Globals.h"
+#include "clsErrorHandler.h"
+#include "clsScreen.h"
+#include "clsDate.h"
 
 using namespace std;
 
-class clsDeleteEventScreen {
+class clsDeleteEventScreen : protected clsScreen {
 private:
     static vector<string> _SplitLine(const string& line, char delimiter = '\t') {
         vector<string> tokens;
@@ -52,75 +55,165 @@ private:
         return result;
     }
 
+    static bool _ValidateEventID(const string& eventID) {
+        if (eventID.empty()) {
+            clsErrorHandler::HandleError(clsErrorHandler::enErrorType::Validation, 
+                "Event ID cannot be empty.");
+            return false;
+        }
+
+        // Check if ID contains only digits
+        for (char c : eventID) {
+            if (!isdigit(c)) {
+                clsErrorHandler::HandleError(clsErrorHandler::enErrorType::Validation, 
+                    "Event ID must contain only numbers.");
+                return false;
+            }
+        }
+        return true;
+    }
+
 public:
     static void Show() {
-        system("cls");
-        cout << "========================================\n";
-        cout << "           Delete My Event              \n";
-        cout << "========================================\n\n";
+        try {
+            system("cls");
+            cout << "========================================\n";
+            cout << "           Delete My Event              \n";
+            cout << "========================================\n\n";
 
-        // Step 0: Display existing events
-        string query = "SELECT id, name, description, date, time, venue FROM Events WHERE organizer_id = " + to_string(CurrentUser.Id);
-        connectToDatabase();
-        string result = executeQuerySilent(query);
-        closeDatabaseConnection();
-        vector<vector<string>> table = _ParseResult(result);
+            if (!connectToDatabase()) {
+                clsErrorHandler::HandleError(clsErrorHandler::enErrorType::Database, 
+                    "Failed to connect to database");
+                return;
+            }
 
-        if (table.size() <= 1) {
-            cout << "\nNo events found for this user.\n";
-            return;
+            // Step 0: Display existing events
+            string query = "SELECT id, name, description, date, time, venue FROM Events WHERE organizer_id = " + to_string(CurrentUser.Id);
+            string result = executeQuerySilent(query);
+            vector<vector<string>> table = _ParseResult(result);
+
+            if (table.size() <= 1) {
+                clsErrorHandler::HandleError(clsErrorHandler::enErrorType::Validation, 
+                    "No events found for this user.");
+                closeDatabaseConnection();
+                return;
+            }
+
+            // Print Header
+            cout << setw(8) << left << "" << "\n\t________________________________________________________________________________________\n";
+            cout << setw(8) << left << "" << "| " << setw(4) << left << "ID";
+            cout << "| " << setw(18) << left << "Name";
+            cout << "| " << setw(30) << left << "Description";
+            cout << "| " << setw(10) << left << "Date";
+            cout << "| " << setw(8) << left << "Time";
+            cout << "| " << setw(15) << left << "Venue";
+            cout << "\n" << setw(5) << left << "" << "\t________________________________________________________________________________________\n";
+
+            // Store valid event IDs
+            vector<string> validEventIds;
+            for (size_t i = 1; i < table.size(); ++i) {
+                _PrintEventRecordLine(table[i]);
+                cout << endl;
+                validEventIds.push_back(table[i][0]); // Store the ID from first column
+            }
+
+            cout << setw(5) << left << "" << "\t________________________________________________________________________________________\n";
+
+            do {
+                // Step 1: Ask for ID to delete
+                string eventID;
+                cout << "\nEnter Event ID to delete (or 'X' to cancel): ";
+                getline(cin >> ws, eventID);
+
+                if (eventID == "X" || eventID == "x") {
+                    cout << "\nOperation cancelled.\n";
+                    closeDatabaseConnection();
+                    return;
+                }
+
+                // Validate event ID format
+                if (!_ValidateEventID(eventID)) {
+                    continue;
+                }
+
+                // Check if the event ID exists in the user's events
+                bool isValidId = false;
+                size_t eventIndexInTable = 0;
+                for (size_t i = 0; i < validEventIds.size(); i++)
+                {
+                    if (validEventIds[i] == eventID)
+                    {
+                        isValidId = true;
+                        eventIndexInTable = i + 1; // +1 because table has a header row
+                        break;
+                    }
+                }
+
+                if (!isValidId) {
+                    clsErrorHandler::HandleError(clsErrorHandler::enErrorType::Validation, 
+                        "Event ID " + eventID + " does not exist in your events list.");
+                    continue;
+                }
+
+                string eventDateStr = table[eventIndexInTable][3]; // Date is 4th column
+                short year = stoi(eventDateStr.substr(0, 4));
+                short month = stoi(eventDateStr.substr(5, 2));
+                short day = stoi(eventDateStr.substr(8, 2));
+                clsDate eventDate(day, month, year);
+
+                if (clsDate::IsDate1BeforeDate2(eventDate, clsDate::GetSystemDate()))
+                {
+                    cout << "\nThis event has already finished and cannot be deleted." << endl;
+                    cout << "Press any key to choose another event...";
+                    system("pause>0");
+                    continue;
+                }
+
+                // Get event name for confirmation
+                string eventName = table[eventIndexInTable][1];
+                if (!eventName.empty()) {
+                    cout << "\nEvent Details:";
+                    cout << "\n-----------------\n";
+                    cout << "ID: " << eventID << endl;
+                    cout << "Name: " << eventName << endl;
+                    cout << "-----------------\n";
+                }
+
+                // Step 3: Confirm deletion
+                cout << "\nAre you sure you want to delete this event? (Y/N): ";
+                string confirm;
+                getline(cin >> ws, confirm);
+
+                if (confirm == "Y" || confirm == "y") {
+                    try {
+                        string deleteQuery = "DELETE FROM Events WHERE id = '" + escapeString(eventID) + 
+                            "' AND organizer_id = '" + to_string(CurrentUser.Id) + "'";
+                        executeInstruction(deleteQuery);
+                        cout << "\nEvent deleted successfully!\n";
+                        break;
+                    }
+                    catch (const exception& e) {
+                        clsErrorHandler::HandleError(clsErrorHandler::enErrorType::Database, 
+                            "Failed to delete event: " + string(e.what()));
+                        continue;
+                    }
+                }
+                else {
+                    cout << "\nDeletion cancelled.\n";
+                    break;
+                }
+
+            } while (true);
+
+            closeDatabaseConnection();
+        }
+        catch (const exception& e) {
+            clsErrorHandler::HandleError(clsErrorHandler::enErrorType::General, 
+                "An unexpected error occurred: " + string(e.what()));
+            closeDatabaseConnection();
         }
 
-        // Print Header
-        cout << setw(8) << left << "" << "\n\t________________________________________________________________________________________\n";
-        cout << setw(8) << left << "" << "| " << setw(4) << left << "ID";
-        cout << "| " << setw(18) << left << "Name";
-        cout << "| " << setw(30) << left << "Description";
-        cout << "| " << setw(10) << left << "Date";
-        cout << "| " << setw(8) << left << "Time";
-        cout << "| " << setw(15) << left << "Venue";
-        cout << "\n" << setw(5) << left << "" << "\t________________________________________________________________________________________\n";
-
-        for (size_t i = 1; i < table.size(); ++i) {
-            _PrintEventRecordLine(table[i]);
-            cout << endl;
-        }
-
-        cout << setw(5) << left << "" << "\t________________________________________________________________________________________\n";
-
-        // Step 1: Ask for ID to delete
-        string eventID;
-        cout << "\nEnter Event ID to delete: ";
-        cin.ignore();
-        getline(cin, eventID);
-
-        // Step 2: Verify ownership
-        string checkQuery = "SELECT * FROM Events WHERE id = '" + escapeString(eventID) + "' AND organizer_id = '" + to_string(CurrentUser.Id) + "'";
-        connectToDatabase();
-        string checkResult = executeQuerySilent(checkQuery);
-        closeDatabaseConnection();
-
-        if (checkResult.empty() || checkResult.find('\n') == string::npos) {
-            cout << "\nEvent not found or you don't have permission to delete it.\n";
-            return;
-        }
-
-        // Step 3: Confirm deletion
-        string confirm;
-        cout << "\nAre you sure you want to delete this event? (Y/N): ";
-        getline(cin, confirm);
-
-        if (confirm != "Y" && confirm != "y") {
-            cout << "\nDeletion cancelled.\n";
-            return;
-        }
-
-        // Step 4: Delete
-        string deleteQuery = "DELETE FROM Events WHERE id = '" + escapeString(eventID) + "' AND organizer_id = '" + to_string(CurrentUser.Id) + "'";
-        connectToDatabase();
-        executeInstruction(deleteQuery);
-        closeDatabaseConnection();
-
-        cout << "\nEvent deleted successfully.\n";
+        cout << "\nPress any key to return...";
+        system("pause>0");
     }
 };

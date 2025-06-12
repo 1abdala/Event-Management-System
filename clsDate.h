@@ -1,5 +1,3 @@
-
-
 #pragma warning(disable : 4996)
 #pragma once
 
@@ -174,6 +172,21 @@ public:
 	string DateToString()
 	{
 		return  DateToString(*this);
+	}
+
+	static string DateToYYYYMMDDString(clsDate Date)
+	{
+		string DayString = to_string(Date.Day);
+		if (Date.Day < 10) {
+			DayString = "0" + DayString;
+		}
+
+		string MonthString = to_string(Date.Month);
+		if (Date.Month < 10) {
+			MonthString = "0" + MonthString;
+		}
+
+		return to_string(Date.Year) + "-" + MonthString + "-" + DayString;
 	}
 
 	static bool isLeapYear(short Year)

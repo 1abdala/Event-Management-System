@@ -6,10 +6,14 @@
 #include <iomanip>
 #include "Database.h"
 #include "Globals.h"
+#include "clsScreen.h"
+#include "clsInputValidate.h"
+#include "clsErrorHandler.h"
+#include "clsDate.h"
 
 using namespace std;
 
-class clsDeleteSpeakerScreen {
+class clsDeleteSpeakerScreen : protected clsScreen {
 private:
     static vector<string> _SplitLine(const string& line, char delimiter = '\t') {
         vector<string> tokens;
@@ -21,75 +25,135 @@ private:
         return tokens;
     }
 
-    static void _PrintSpeakerDetails(const vector<string>& row) {
-        cout << "\nSpeaker Details:\n";
-        cout << "-------------------------------------\n";
-        cout << "ID           : " << row[0] << endl;
-        cout << "Event ID     : " << row[1] << endl;
-        cout << "Full Name    : " << row[2] << endl;
-        cout << "Topic        : " << row[3] << endl;
-        cout << "Session Time : " << row[4] << endl;
-        cout << "-------------------------------------\n";
+    static vector<vector<string>> _ParseResult(const string& data) {
+        vector<vector<string>> table;
+        stringstream ss(data);
+        string line;
+        while (getline(ss, line)) {
+            if (!line.empty()) {
+                table.push_back(_SplitLine(line));
+            }
+        }
+        return table;
     }
 
-    static string escapeString(const string& input) {
-        string result = input;
-        size_t pos = 0;
-        while ((pos = result.find('\'')) != string::npos) {
-            result.insert(pos, 1, '\'');
-            pos += 2;
-        }
-        return result;
+    static void _PrintSpeakerRow(const vector<string>& row) {
+        // Expected row: speaker_id, speaker_name, topic, event_name
+        cout << "| " << setw(4) << left << row[0]
+            << "| " << setw(25) << left << row[1]
+            << "| " << setw(30) << left << row[2]
+            << "| " << setw(25) << left << row[3] << " |" << endl;
+    }
+
+    static void _DrawScreenHeader() {
+        system("cls");
+        cout << "\n===========================================\n";
+        cout << "\t   Delete Speaker Screen";
+        cout << "\n===========================================\n";
     }
 
 public:
-    static void Show() {
-        system("cls");
-        cout << "========================================\n";
-        cout << "            Delete Speaker              \n";
-        cout << "========================================\n\n";
+    static void ShowDeleteSpeakerScreen() {
+        _DrawScreenHeader();
+
+        if (!connectToDatabase()) {
+            clsErrorHandler::HandleError(clsErrorHandler::enErrorType::Database, "Failed to connect to database");
+            return;
+        }
+
+        cout << "\n--- Speakers in Your Upcoming Events ---\n";
+        string currentDateStr = clsDate::DateToYYYYMMDDString(clsDate::GetSystemDate());
+        string query = "SELECT s.id, s.full_name, s.topic, e.name FROM speakers s "
+            "JOIN events e ON s.event_id = e.id "
+            "WHERE e.organizer_id = " + to_string(CurrentUser.Id) + " AND e.date >= '" + currentDateStr + "' "
+            "ORDER BY e.date ASC, s.full_name ASC";
+        string result = executeQuerySilent(query);
+
+        size_t first_newline = result.find('\n');
+        if (first_newline != string::npos) {
+            result = result.substr(first_newline + 1);
+        }
+
+        vector<vector<string>> table = _ParseResult(result);
+        vector<string> validSpeakerIds;
+
+        if (table.empty()) {
+            cout << "You have no speakers in upcoming events to delete.\n";
+            closeDatabaseConnection();
+            cout << "\nPress any key to return...";
+            system("pause>0");
+            return;
+        }
+
+        cout << "-----------------------------------------------------------------------------------------\n";
+        cout << "| " << setw(4) << left << "ID"
+            << "| " << setw(25) << left << "Speaker Name"
+            << "| " << setw(30) << left << "Topic"
+            << "| " << setw(25) << left << "Event" << " |" << endl;
+        cout << "-----------------------------------------------------------------------------------------\n";
+
+        for (const auto& row : table) {
+            if (row.size() >= 4) {
+                _PrintSpeakerRow(row);
+                validSpeakerIds.push_back(row[0]);
+            }
+        }
+        cout << "-----------------------------------------------------------------------------------------\n\n";
+
 
         string speakerID;
-        cout << "Enter Speaker ID to delete: ";
-        cin.ignore();
-        getline(cin, speakerID);
+        do {
+            cout << "\nEnter Speaker ID to delete (or 'X' to cancel): ";
+            getline(cin >> ws, speakerID);
 
-        // Step 1: Fetch the speaker and verify ownership via event's organizer
-        string fetchQuery =
-            "SELECT s.id, s.event_id, s.full_name, s.topic, s.session_time "
-            "FROM Speakers s "
-            "JOIN Events e ON s.event_id = e.id "
-            "WHERE s.id = '" + escapeString(speakerID) + "' AND e.organizer_id = '" + to_string(CurrentUser.Id) + "'";
+            if (speakerID == "x" || speakerID == "X") {
+                cout << "\nOperation cancelled.\n";
+                closeDatabaseConnection();
+                return;
+            }
 
-        connectToDatabase();
-        string result = executeQuerySilent(fetchQuery);
-        closeDatabaseConnection();
+            bool isValidId = false;
+            for (const auto& id : validSpeakerIds) {
+                if (id == speakerID) {
+                    isValidId = true;
+                    break;
+                }
+            }
 
-        if (result.empty() || result.find('\n') == string::npos) {
-            cout << "\nSpeaker not found or you don't have permission to delete it.\n";
-            return;
-        }
+            if (!isValidId) {
+                cout << " Invalid Speaker ID. Please choose from the list above.\n";
+                speakerID.clear();
+            }
 
-        // Step 2: Show speaker preview
-        vector<string> speakerDetails = _SplitLine(result.substr(result.find('\n') + 1));
-        _PrintSpeakerDetails(speakerDetails);
+        } while (speakerID.empty());
 
-        // Step 3: Confirm deletion
-        string confirm;
+
         cout << "\nAre you sure you want to delete this speaker? (Y/N): ";
-        getline(cin, confirm);
+        string confirm;
+        getline(cin >> ws, confirm);
 
-        if (confirm != "Y" && confirm != "y") {
+        if (confirm == "Y" || confirm == "y") {
+            string deleteQuery = "DELETE FROM Speakers WHERE id = '" + speakerID + "'";
+            executeInstruction(deleteQuery);
+            cout << "\nSpeaker deleted successfully!\n";
+        }
+        else {
             cout << "\nDeletion cancelled.\n";
-            return;
         }
 
-        // Step 4: Delete
-        string deleteQuery = "DELETE FROM Speakers WHERE id = '" + escapeString(speakerID) + "'";
-        connectToDatabase();
-        executeInstruction(deleteQuery);
         closeDatabaseConnection();
 
-        cout << "\nSpeaker deleted successfully.\n";
+        cout << "\nPress any key to return...";
+        system("pause>0");
+    }
+private:
+    static string escapeString(const string& str) {
+        string escaped = str;
+        size_t pos = 0;
+        while ((pos = escaped.find('\'', pos)) != string::npos) {
+            escaped.insert(pos, 1, '\'');
+            pos += 2;
+        }
+        return escaped;
     }
 };

@@ -131,10 +131,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Database.cpp" />
+    <ClCompile Include="Globals.cpp" />
     <ClCompile Include="Main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="clsAddSpeaker.h" />
+    <ClInclude Include="clsAttendanceHistory.h" />
     <ClInclude Include="clsattendee.h" />
     <ClInclude Include="clsAvailableEventsScreen.h" />
     <ClInclude Include="clsBookTicketScreen.h" />
@@ -142,16 +144,22 @@
     <ClInclude Include="clsDate.h" />
     <ClInclude Include="clsDeleteEventScreen.h" />
     <ClInclude Include="clsDeleteSpeakerScreen.h" />
+    <ClInclude Include="clsErrorHandler.h" />
     <ClInclude Include="clsEvent.h" />
     <ClInclude Include="clsInputValidate.h" />
     <ClInclude Include="clsLoginScreen.h" />
     <ClInclude Include="clsOrganizerMainMenuScreen.h" />
+    <ClInclude Include="clsReport.h" />
     <ClInclude Include="clsSpeakerScreen.h" />
     <ClInclude Include="clsString.h" />
     <ClInclude Include="clsUpdateEventScreen.h" />
     <ClInclude Include="clsUpdatSpeakerScreen.h" />
     <ClInclude Include="clsViewAddedSpeakers.h" />
     <ClInclude Include="clsViewCreatedEventsScreen.h" />
+    <ClInclude Include="clsViewEventAttendeesScreen.h" />
+    <ClInclude Include="clsViewMyTicketsScreen.h" />
+    <ClInclude Include="clsViewReportScreen.h" />
+    <ClInclude Include="clsViewTicketDetailsScreen.h" />
     <ClInclude Include="Globals.h" />
     <ClInclude Include="Database.h" />
     <ClInclude Include="clsUser.h" />

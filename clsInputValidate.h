@@ -4,9 +4,19 @@ using namespace std;
 #include "clsString.h";
 #include "clsDate.h";
 #include<vector>
+#include <conio.h> // For _getch()
+
 class clsInputValidate
 {
 public:
+	static bool IsNumber(const string& str) {
+		if (str.empty()) return false;
+		for (char ch : str) {
+			if (!isdigit(ch))
+				return false;
+		}
+		return true;
+	}
 	static bool IsValidDateFormat(const string& date) {
 		// YYYY-MM-DD
 		if (date.length() != 10) return false;
@@ -190,5 +200,23 @@ public:
 	static	bool IsValidDate(clsDate date)
 	{
 		return clsDate::IsValidDate(date);
+	}
+
+	static string ReadPassword() {
+		string password = "";
+		char ch;
+		while ((ch = _getch()) != '\r') { // '\r' is Enter key
+			if (ch == '\b') { // '\b' is Backspace key
+				if (!password.empty()) {
+					password.pop_back();
+					cout << "\b \b"; // Erase the last asterisk
+				}
+			} else {
+				password += ch;
+				cout << "*";
+			}
+		}
+		cout << endl;
+		return password;
 	}
 };

@@ -8,18 +8,16 @@
 #include "clsUpdateEventScreen.h"
 #include "clsDeleteEventScreen.h"
 #include "clsSpeakerScreen.h"
-
-
-
-
+#include "clsViewEventAttendeesScreen.h"
+#include "clsLoginScreen.h"
+#include "clsViewReportScreen.h"
 
 class clsOrganizerMainMenuScreen {
 private:
-
     enum enOrganizerMenuOption {
         eCreateEvent = 1, eViewEvents, eUpdateEvent,
         eDeleteEvent, eAddSpeaker, eViewAttendees,
-        ePostAnnouncement, eViewReports, eLogout
+        eViewReport, eLogout
     };
 
     static void _DrawScreenHeader(const string& Title, const string& SubTitle = "") {
@@ -35,8 +33,8 @@ private:
     }
 
     static short _ReadOrganizerMenuOption() {
-        cout << "\nEnter your choice [1 - 9]: ";
-        return clsInputValidate::ReadShortNumberBetween(1, 9, "Invalid choice. Please enter a number between 1 and 9: ");
+        cout << "\nEnter your choice [1 - 8]: ";
+        return clsInputValidate::ReadShortNumberBetween(1, 8, "Invalid choice. Please enter a number between 1 and 8: ");
     }
 
     static void _GoBackToMenu() {
@@ -62,42 +60,28 @@ private:
             _GoBackToMenu();
             break;
 
-
         case eDeleteEvent:
             clsDeleteEventScreen::Show();
             _GoBackToMenu();
             break;
-
 
         case eAddSpeaker:
             clsSpeakerScreen::ShowSpeakerMenu();
             _GoBackToMenu();
             break;
 
-
         case eViewAttendees:
             _DrawScreenHeader("View Event Attendees");
-            cout << "\n[View Attendees functionality will be here]\n";
+            clsViewEventAttendeesScreen::Show();
             _GoBackToMenu();
             break;
 
-
-        case ePostAnnouncement:
-            _DrawScreenHeader("Post Announcement");
-            cout << "\n[Post Announcement functionality will be here]\n";
+        case eViewReport:
+            clsViewReportScreen::Show();
             _GoBackToMenu();
             break;
-
-
-        case eViewReports:
-            _DrawScreenHeader("View Reports");
-            cout << "\n[View Reports functionality will be here]\n";
-            _GoBackToMenu();
-            break;
-
 
         case eLogout:
-           
             break;
         }
     }
@@ -113,9 +97,8 @@ public:
         cout << "[4]  Delete Event\n";
         cout << "[5]  Speaker Screen\n";
         cout << "[6]  View Event Attendees\n";
-        cout << "[7]  Post Announcement\n";
-        cout << "[8]  View Reports\n";
-        cout << "[9]  Logout\n";
+        cout << "[7]  View Events Report\n";
+        cout << "[8]  Logout\n";
         cout << "================================================================\n";
 
         _PerformMenuOption((enOrganizerMenuOption)_ReadOrganizerMenuOption());

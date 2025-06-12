@@ -4,15 +4,14 @@
 #include "clsInputValidate.h"
 #include "Globals.h"
 #include "clsAvailableEventsScreen.h"
-#include "clsBookTicketScreen.h"
-
+#include "clsViewMyTicketsScreen.h"
+#include "clsCancelTicketBookingScreen.h"
 
 class clsAttendeeMainMenuScreen {
 private:
-
     enum enAttendeeMenuOption {
-        eViewEvents = 1, eBookTicket, eViewMyTickets,
-        eCheckIn, eViewAnnouncements, eLogout
+        eViewEvents = 1, eViewMyTickets, eCancelBooking,
+        eLogout
     };
 
     static void _DrawScreenHeader(const string& Title, const string& SubTitle = "") {
@@ -28,8 +27,8 @@ private:
     }
 
     static short _ReadAttendeeMenuOption() {
-        cout << "\nEnter your choice [1 - 6]: ";
-        return clsInputValidate::ReadShortNumberBetween(1, 6, "Invalid choice. Please enter a number between 1 and 6: ");
+        cout << "\nEnter your choice [1 - 4]: ";
+        return clsInputValidate::ReadShortNumberBetween(1, 4, "Invalid choice. Please enter a number between 1 and 4: ");
     }
 
     static void _GoBackToMenu() {
@@ -45,26 +44,13 @@ private:
             _GoBackToMenu();
             break;
             
-        case eBookTicket:
-            clsBookTicketScreen::Show();
-            _GoBackToMenu();
-            break;
-
         case eViewMyTickets:
-            _DrawScreenHeader("My Booked Tickets");
-            cout << "\n[View My Tickets functionality will be here]\n";
-            _GoBackToMenu();
-
-            break;
-        case eCheckIn:
-            _DrawScreenHeader("Check-in to Event");
-            cout << "\n[Check-in functionality will be here]\n";
+            clsViewMyTicketsScreen::Show();
             _GoBackToMenu();
             break;
 
-        case eViewAnnouncements:
-            _DrawScreenHeader("Event Announcements");
-            cout << "\n[View Announcements functionality will be here]\n";
+        case eCancelBooking:
+            clsCancelTicketBookingScreen::Show();
             _GoBackToMenu();
             break;
 
@@ -80,11 +66,9 @@ public:
 
         cout << "======================= Attendee Menu ==========================\n";
         cout << "[1]  View Available Events\n";
-        cout << "[2]  Book a Ticket\n";
-        cout << "[3]  View My Booked Tickets\n";
-        cout << "[4]  Check-in to Event\n";
-        cout << "[5]  View Event Announcements\n";
-        cout << "[6]  Logout\n";
+        cout << "[2]  View My Booked Tickets\n";
+        cout << "[3]  Cancel Ticket Booking\n";
+        cout << "[4]  Logout\n";
         cout << "================================================================\n";
 
         _PerformMenuOption((enAttendeeMenuOption)_ReadAttendeeMenuOption());
