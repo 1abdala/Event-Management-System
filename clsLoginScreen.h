@@ -8,8 +8,7 @@
 #include "clsOrganizerMainMenuScreen.h"
 #include "clsattendee.h"
 #include "clsInputValidate.h"
-
-
+#include "clsAdminMainMenuScreen.h"
 
 using namespace std;
 
@@ -68,25 +67,45 @@ public:
         return true;
     }
 
-
 private:
     void displayLoginScreen() {
-        
         string username, password;
         int attempts = 0;
         const int maxAttempts = 3;
 
+        // Add role selection
+        cout << "\nSelect Role:\n";
+        cout << "[1] Attendee\n";
+        cout << "[2] Organizer\n";
+        cout << "[3] Admin\n";
+        cout << "Enter your role (1-3): ";
+        int roleChoice = clsInputValidate::ReadIntNumberBetween(1, 3, "Invalid choice. Please enter 1 for Attendee, 2 for Organizer, or 3 for Admin: ");
+
+        string selectedRole;
+        switch (roleChoice) {
+            case 1:
+                selectedRole = "attendee";
+                break;
+            case 2:
+                selectedRole = "organizer";
+                break;
+            case 3:
+                selectedRole = "admin";
+                break;
+        }
+
         while (attempts < maxAttempts) {
-            cout << "\n--- Login --- (Attempt " << (attempts + 1) << " of " << maxAttempts << ")\n";
+            cout << "\n--- Login as " << selectedRole << " --- (Attempt " << (attempts + 1) << " of " << maxAttempts << ")\n";
             cout << "Enter Username: ";
             cin >> username;
             cout << "Enter Password: ";
             password = clsInputValidate::ReadPassword();
 
-            if (authenticateUser(username, password)) {
-                if (CurrentUser.Role == "organizer")
+            if (authenticateUser(username, password, selectedRole)) {
+                if (CurrentUser.Role == "admin")
+                    clsAdminMainMenuScreen::ShowAdminMenu();
+                else if (CurrentUser.Role == "organizer")
                     clsOrganizerMainMenuScreen::ShowOrganizerMenu();
-
                 else if (CurrentUser.Role == "attendee")
                     clsAttendeeMainMenuScreen::ShowAttendeeMenu();
                 return;
@@ -100,6 +119,42 @@ private:
         cout << "\nToo many failed attempts. Returning to main menu.\n";
     }
 
+    bool _IsValidPassword(const string& password) {
+        if (password.length() < 8) {
+            cout << "Password must be at least 8 characters long.\n";
+            return false;
+        }
+
+        bool hasUpper = false;
+        bool hasLower = false;
+        bool hasDigit = false;
+        bool hasSpecial = false;
+        int typeCount = 0;
+
+        for (char c : password) {
+            if (isupper(c)) hasUpper = true;
+            else if (islower(c)) hasLower = true;
+            else if (isdigit(c)) hasDigit = true;
+            else if (ispunct(c)) hasSpecial = true;
+        }
+
+        if (hasUpper) typeCount++;
+        if (hasLower) typeCount++;
+        if (hasDigit) typeCount++;
+        if (hasSpecial) typeCount++;
+
+        if (typeCount < 3) {
+            cout << "Password must include at least 3 of the following:\n";
+            cout << "- Uppercase letter (A-Z)\n";
+            cout << "- Lowercase letter (a-z)\n";
+            cout << "- Number (0-9)\n";
+            cout << "- Special character (!@#$%^&* etc.)\n";
+            return false;
+        }
+
+        return true;
+    }
+
     void displaySignUpScreen() {
         string first_name, last_name, username, email, password, role;
         cout << "\n--- Sign Up ---\n";
@@ -111,8 +166,22 @@ private:
         cin >> username;
         cout << "Enter Email: ";
         cin >> email;
-        cout << "Enter Password: ";
-        password = clsInputValidate::ReadPassword();
+        
+        // Password validation loop
+        do {
+            cout << "Enter Password: ";
+            password = clsInputValidate::ReadPassword();
+            if (_IsValidPassword(password)) {
+                break;
+            }
+            cout << "\nPassword Requirements:\n";
+            cout << "- Minimum 8 characters\n";
+            cout << "- Must include at least 3 of:\n";
+            cout << "  * Uppercase letter (A-Z)\n";
+            cout << "  * Lowercase letter (a-z)\n";
+            cout << "  * Number (0-9)\n";
+            cout << "  * Special character (!@#$%^&* etc.)\n\n";
+        } while (!_IsValidPassword(password));
         
         int roleChoice;
         cout << "Enter Role (1 for Organizer, 2 for Attendee): ";
@@ -128,7 +197,6 @@ private:
             cout << "\n\nSign Up Successful! You can now log in." << endl;
             cout << "\nPress any key to return to the main menu...";
             system("pause>0");
-
         }
         else {
             cout << "Sign Up Failed. Please try again." << endl;
@@ -137,11 +205,11 @@ private:
         }
     }
 
-    bool authenticateUser(const string& username, const string& password) {
+    bool authenticateUser(const string& username, const string& password, const string& role) {
         string safeUsername = escapeString(username);
         string safePassword = escapeString(password);
 
-        string query = "SELECT * FROM users WHERE username = '" + safeUsername + "' AND password = '" + safePassword + "'";
+        string query = "SELECT * FROM users WHERE username = '" + safeUsername + "' AND password = '" + safePassword + "' AND role = '" + role + "' AND is_active = 1";
         cout << "[DEBUG] SQL Query: " << query << endl;
 
         connectToDatabase();
@@ -159,7 +227,7 @@ private:
             }
 
             if (lines.size() < 2) {
-                cout << "[ERROR] No user data found." << endl;
+                cout << "[ERROR] No user data found or account is deactivated." << endl;
                 return false;
             }
 
@@ -194,8 +262,6 @@ private:
 
         return false;
     }
-
-
 
     bool registerUser(const string& first_name, const string& last_name, const string& username, const string& email, const string& password, const string& role) {
         string query = "INSERT INTO users (first_name, last_name, username, email, password, role) VALUES ('" +

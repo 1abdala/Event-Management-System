@@ -21,10 +21,24 @@ int main() {
 
 		// Clean up database connection
 		closeDatabaseConnection();
+
+		// Show exit message
+		system("cls");
+		cout << "\n\n\t\t==========================================\n";
+		cout << "\t\t|                                        |\n";
+		cout << "\t\t|     Thank you for using our system!    |\n";
+		cout << "\t\t|           Have a great day!            |\n";
+		cout << "\t\t|                                        |\n";
+		cout << "\t\t==========================================\n\n";
+		
+		// Wait for a moment before closing
+		system("timeout /t 2 > nul");
 		return 0;
 	}
 	catch (const exception& e) {
 		cout << "\nError: " << e.what() << endl;
+		cout << "\nPress any key to exit...";
+		system("pause>nul");
 		return 1;
 	}
 }

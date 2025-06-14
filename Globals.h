@@ -7,8 +7,8 @@ const std::string PROGRAM_NAME = "Event Management System";
 const std::string PROGRAM_VERSION = "1.0";
 const short SCREEN_WIDTH = 120;
 
-// Global User object
-extern User CurrentUser;
+// Global Variables
+extern clsUser CurrentUser;
 
 // Global enums
 enum enUserType { Organizer = 1, Attendee = 2 };

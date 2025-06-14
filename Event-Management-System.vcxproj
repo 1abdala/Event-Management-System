@@ -136,6 +136,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="clsAddSpeaker.h" />
+    <ClInclude Include="clsAdminMainMenuScreen.h" />
     <ClInclude Include="clsAttendanceHistory.h" />
     <ClInclude Include="clsattendee.h" />
     <ClInclude Include="clsAvailableEventsScreen.h" />
@@ -145,6 +146,7 @@
     <ClInclude Include="clsDeleteEventScreen.h" />
     <ClInclude Include="clsDeleteSpeakerScreen.h" />
     <ClInclude Include="clsErrorHandler.h" />
+    <ClInclude Include="clseSearchAttendee.h" />
     <ClInclude Include="clsEvent.h" />
     <ClInclude Include="clsInputValidate.h" />
     <ClInclude Include="clsLoginScreen.h" />

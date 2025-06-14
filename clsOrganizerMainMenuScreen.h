@@ -11,13 +11,14 @@
 #include "clsViewEventAttendeesScreen.h"
 #include "clsLoginScreen.h"
 #include "clsViewReportScreen.h"
+#include "clseSearchAttendee.h"
 
 class clsOrganizerMainMenuScreen {
 private:
     enum enOrganizerMenuOption {
         eCreateEvent = 1, eViewEvents, eUpdateEvent,
         eDeleteEvent, eAddSpeaker, eViewAttendees,
-        eViewReport, eLogout
+        eViewReport, eSearchAttendee, eLogout
     };
 
     static void _DrawScreenHeader(const string& Title, const string& SubTitle = "") {
@@ -33,8 +34,8 @@ private:
     }
 
     static short _ReadOrganizerMenuOption() {
-        cout << "\nEnter your choice [1 - 8]: ";
-        return clsInputValidate::ReadShortNumberBetween(1, 8, "Invalid choice. Please enter a number between 1 and 8: ");
+        cout << "\nEnter your choice [1 - 9]: ";
+        return clsInputValidate::ReadShortNumberBetween(1, 9, "Invalid choice. Please enter a number between 1 and 9: ");
     }
 
     static void _GoBackToMenu() {
@@ -81,6 +82,11 @@ private:
             _GoBackToMenu();
             break;
 
+        case eSearchAttendee:
+            clseSearchAttendee::Show();
+            _GoBackToMenu();
+            break;
+
         case eLogout:
             break;
         }
@@ -98,7 +104,8 @@ public:
         cout << "[5]  Speaker Screen\n";
         cout << "[6]  View Event Attendees\n";
         cout << "[7]  View Events Report\n";
-        cout << "[8]  Logout\n";
+        cout << "[8]  Search attendee\n";
+        cout << "[9]  Logout\n";
         cout << "================================================================\n";
 
         _PerformMenuOption((enOrganizerMenuOption)_ReadOrganizerMenuOption());

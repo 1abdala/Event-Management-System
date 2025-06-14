@@ -26,29 +26,27 @@ private:
     }
 
     static void _PrintTicketsTableHeader() {
-        cout << "\n" << setw(125) << setfill('=') << "" << setfill(' ') << "\n";
-        cout << "| " << setw(5) << left << "ID"
-             << "| " << setw(13) << left << "Ticket #"
-             << "| " << setw(25) << left << "Event Name"
-             << "| " << setw(12) << left << "Date"
-             << "| " << setw(10) << left << "Price"
-             << "| " << setw(10) << left << "Status"
-             << "| " << setw(25) << left << "Speaker(s)"
-             << "|" << endl;
-        cout << setw(125) << setfill('=') << "" << setfill(' ') << "\n";
+        cout << "\n" << setw(110) << setfill('=') << "" << setfill(' ') << "\n";
+        cout << setw(8) << left << "| ID"
+             << setw(15) << left << "| Ticket #"
+             << setw(30) << left << "| Event Name"
+             << setw(15) << left << "| Date"
+             << setw(15) << left << "| Price"
+             << setw(12) << left << "| Status"
+             << " |" << endl;
+        cout << setw(110) << setfill('=') << "" << setfill(' ') << "\n";
     }
 
     static void _PrintTicketRow(const string& id, const string& ticketNumber, const string& name, 
-                               const string& date, const string& price, const string& status, const string& speakers) {
-        cout << "| " << setw(5) << left << id
+                               const string& date, const string& price, const string& status) {
+        cout << "| " << setw(6) << left << id
              << "| " << setw(13) << left << ticketNumber
-             << "| " << setw(25) << left << name
-             << "| " << setw(12) << left << date
-             << "| $" << setw(8) << left << price
+             << "| " << setw(28) << left << name
+             << "| " << setw(13) << left << date
+             << "| $" << setw(12) << left << price
              << "| " << setw(10) << left << status
-             << "| " << setw(25) << left << speakers
-             << "|" << endl;
-        cout << setw(125) << setfill('-') << "" << setfill(' ') << "\n";
+             << " |" << endl;
+        cout << setw(110) << setfill('-') << "" << setfill(' ') << "\n";
     }
 
     static vector<string> _SplitLine(const string& line, char delimiter = '\t') {
@@ -94,14 +92,11 @@ public:
             string currentDateStr = clsDate::DateToYYYYMMDDString(clsDate::GetSystemDate());
 
             string query = "SELECT t.id, t.ticket_number, e.name, e.date, e.ticket_price, "
-                         "CASE WHEN e.date < '" + currentDateStr + "' THEN 'Finished' ELSE 'Upcoming' END AS status, "
-                         "COALESCE(GROUP_CONCAT(s.full_name SEPARATOR ', '), 'None') as speakers "
+                         "CASE WHEN e.date < '" + currentDateStr + "' THEN 'Finished' ELSE 'Upcoming' END AS status "
                          "FROM tickets t "
                          "JOIN events e ON t.event_id = e.id "
                          "JOIN users u ON t.attendee_id = u.id "
-                         "LEFT JOIN speakers s ON e.id = s.event_id "
                          "WHERE u.username = '" + CurrentUser.Username + "' "
-                         "GROUP BY t.id, t.ticket_number, e.name, e.date, e.ticket_price, status "
                          "ORDER BY e.date DESC";
 
             string result = executeQuerySilent(query);
@@ -130,8 +125,8 @@ public:
                         fields.push_back(field);
                     }
 
-                    if (fields.size() >= 7) {
-                        _PrintTicketRow(fields[0], fields[1], fields[2], fields[3], fields[4], fields[5], fields[6]);
+                    if (fields.size() >= 6) {
+                        _PrintTicketRow(fields[0], fields[1], fields[2], fields[3], fields[4], fields[5]);
                         ticketIds.push_back(fields[0]);
                     }
                 }

@@ -100,7 +100,7 @@ private:
         size_t pos = result.find('\n');
         if (pos != string::npos) {
             result = result.substr(pos + 1);
-        }
+    }
 
         cout << setw(80) << setfill('=') << "" << setfill(' ') << "\n";
         cout << "| " << setw(20) << left << "Username"
@@ -113,8 +113,8 @@ private:
             cout << "| " << setw(76) << left << "No attendees found for this event." << " |\n";
         } else {
             stringstream ss(result);
-            string line;
-            while (getline(ss, line)) {
+        string line;
+        while (getline(ss, line)) {
                 if (line.empty()) continue;
 
                 stringstream lineStream(line);

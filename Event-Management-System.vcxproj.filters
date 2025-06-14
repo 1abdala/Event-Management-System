@@ -122,5 +122,11 @@
     <ClInclude Include="clsBookTicketScreen.h">
       <Filter>Header Files\AttendeeScreens</Filter>
     </ClInclude>
+    <ClInclude Include="clseSearchAttendee.h">
+      <Filter>Header Files\OrgnanizerScreens</Filter>
+    </ClInclude>
+    <ClInclude Include="clsAdminMainMenuScreen.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
